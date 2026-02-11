@@ -1,0 +1,23 @@
+.board{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    width:80vw;
+    max-width:600px;
+    border: 2px solid black;
+}
+.board-square-b,
+.board-square-w{
+    aspect-ratio: 1 / 1;
+    border:none;
+}
+.board-square-b:hover,
+.board-square-w:hover{
+    background-color: rgb(230, 230, 230);
+}
+
+.board-square-w{
+    background-color: white;
+}
+.board-square-b{
+    background-color: rgb(88, 60, 22);
+}
