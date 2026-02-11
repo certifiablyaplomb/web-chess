@@ -3,6 +3,7 @@
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     width:80vw;
     max-width:600px;
+    min-width: none;
     border: 2px solid black;
 }
 .board-square-b,
@@ -21,3 +22,6 @@
 .board-square-b{
     background-color: rgb(88, 60, 22);
 }
+
+
+
