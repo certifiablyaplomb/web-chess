@@ -1,4 +1,4 @@
-import { renderBoardHtml, updateBoard, handleBoardInput } from "./board.js";
+import { renderBoardHtml, handleBoardInput } from "./board.js";
 
 
 const board = document.querySelector('.js-board');
@@ -13,6 +13,7 @@ function renderApp(){
         button.addEventListener('click', ()=>{
             if(handleBoardInput(button)){
                 renderApp();
+                console.log('rendered')
             };
         })
 })
