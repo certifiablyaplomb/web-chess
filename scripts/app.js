@@ -3,6 +3,7 @@ import { pieceMap, pieceObjects } from './pieces.js'
 
 const board = document.querySelector('.js-board');
 
+let turn = 'w';
 //render board
 renderApp();
 
@@ -13,7 +14,7 @@ document.querySelectorAll('.js-promotion-button').forEach((button)=>{
         const type = button.dataset.type;
         pieceObjects[pieceId].type = type;
 
-        const { position, id, color } = pieceObjects;
+        const { position, id, color } = pieceObjects[pieceId];
         const newPieceClass = pieceMap[type]
         pieceObjects[pieceId] = new newPieceClass(type, position, id, color)
 
@@ -27,9 +28,9 @@ function renderApp(){
     //instantiate button function
     document.querySelectorAll('.js-board-square').forEach((button)=>{
         button.addEventListener('click', ()=>{
-            if(handleBoardInput(button)){
+            if(handleBoardInput(button, turn)){
                 renderApp();
- 
+                turn = turn==='w'? 'b':'w';
     }})
 })
 }

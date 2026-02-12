@@ -72,7 +72,7 @@ class Piece{ //super
 
 // || CHILD CLASSES || \\
 
-export class Pawn extends Piece{
+class Pawn extends Piece{
     direction = null
     
 
@@ -121,12 +121,60 @@ export class Pawn extends Piece{
     }
 
 }
-class Rook extends Piece{}
-class Knight extends Piece{}
-class Bishop extends Piece{}
-class King extends Piece{}
-class Queen extends Piece{}
-
+class Rook extends Piece{
+    attemptMove(newPosition, boardState){
+        const isTaking = this._isTaking(newPosition, boardState)
+        if (isTaking && this._isSameColor(newPosition, boardState)){
+            throw this.selfTakeError;
+        }
+        if (this._columnChange(newPosition) > 0 && this._rowChange(newPosition) > 0){
+            throw this.invalidMoveError;
+        }
+        this._updatePosition(newPosition, boardState);
+        return true;
+    }
+}
+//start here
+class Knight extends Piece{
+    attemptMove(newPosition, boardState){
+        const isTaking = this._isTaking(newPosition, boardState)
+        if (isTaking && this._isSameColor(newPosition, boardState)){
+            throw this.selfTakeError;
+        }
+        this._updatePosition(newPosition, boardState);
+        return true;
+    }
+}
+class Bishop extends Piece{
+    attemptMove(newPosition, boardState){
+        const isTaking = this._isTaking(newPosition, boardState)
+        if (isTaking && this._isSameColor(newPosition, boardState)){
+            throw this.selfTakeError;
+        }
+        this._updatePosition(newPosition, boardState);
+        return true;
+    }
+}
+class King extends Piece{
+    attemptMove(newPosition, boardState){
+        const isTaking = this._isTaking(newPosition, boardState)
+        if (isTaking && this._isSameColor(newPosition, boardState)){
+            throw this.selfTakeError;
+        }
+        this._updatePosition(newPosition, boardState);
+        return true;
+    }
+}
+class Queen extends Piece{
+    attemptMove(newPosition, boardState){
+        const isTaking = this._isTaking(newPosition, boardState)
+        if (isTaking && this._isSameColor(newPosition, boardState)){
+            throw this.selfTakeError;
+        }
+        this._updatePosition(newPosition, boardState);
+        return true;
+    }
+}
 
 // PIECE DATA \\
 const pieceData = [

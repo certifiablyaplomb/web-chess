@@ -12,7 +12,7 @@ export function renderBoardHtml(){
         `<button 
         class="js-board-square board-square-${tileColor}" 
         data-index=${index}>
-        ${tile?`<img src='./assets/${tile.type}-${tile.color}.png' class="piece" data-id=${tile.id}>`:''}
+        ${tile?`<img src='./assets/${tile.type}-${tile.color}.png' class="piece" data-id=${tile.id} data-color=${tile.color}`:''}
         </button>`;
         count++;
         if (count === 8){
@@ -26,10 +26,10 @@ export function renderBoardHtml(){
 
 //returns true if update occurs
 let pieceSelected = null;
-export function handleBoardInput(button){
+export function handleBoardInput(button, turn){
     const {index} = button.dataset;
     const piece = button.querySelector('img');
-    if(piece){
+    if(piece && piece.dataset.color === turn){
         if(button.style.backgroundColor != 'lightgray' && !pieceSelected){ //if clicking piece for first time
             button.style.backgroundColor = 'lightgray';
             pieceSelected = piece;
