@@ -1,16 +1,22 @@
 import { renderBoardHtml, handleBoardInput } from "./board.js";
-import { pieceObjects } from './pieces.js'
+import { pieceMap, pieceObjects } from './pieces.js'
 
 const board = document.querySelector('.js-board');
 
 //render board
 renderApp();
+
 document.querySelectorAll('.js-promotion-button').forEach((button)=>{
     button.addEventListener('click', ()=>{
         const promotionUi = document.querySelector('.js-promotion-ui');
         const pieceId = promotionUi.dataset.pieceId;
         const type = button.dataset.type;
         pieceObjects[pieceId].type = type;
+
+        const { position, id, color } = pieceObjects;
+        const newPieceClass = pieceMap[type]
+        pieceObjects[pieceId] = new newPieceClass(type, position, id, color)
+
         promotionUi.style.display = 'none';
         renderApp()
     })

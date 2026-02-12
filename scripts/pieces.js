@@ -106,7 +106,7 @@ export class Pawn extends Piece{
             throw this.invalidMoveError;
         }
         //only allow +2 movement on first move 
-        else if (rowChange===2 && !this._isFirstMove()){
+        else if (Math.abs(rowChange)===2 && !this._isFirstMove()){
             console.log('test4')
             throw this.invalidMoveError;
             
