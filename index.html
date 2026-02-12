@@ -3,16 +3,23 @@
     <head>
         <title>Chess Engine</title>
 
+        <link rel="stylesheet" href="./styles/general.css">
         <link rel="stylesheet" href="./styles/board.css">
         <link rel="stylesheet" href="./styles/app.css">
+        <link rel="stylesheet" href="./styles/promotion-ui.css">
+
     </head>
     <body>
         <div class="js-app app">
-                <div class="js-board board"></div>
+            <div class="js-board board"></div>
+            <div class="js-promotion-ui promotion-ui">
+                <button class="js-promotion-button option-button" data-type="queen">Queen</button>
+                <button class="js-promotion-button option-button" data-type="rook">Rook</button>
+                <button class="js-promotion-button option-button" data-type="bishop">Bishop</button>
+                <button class="js-promotion-button option-button" data-type="knight">Knight</button>
             </div>
             
         </div>
-
         <script src="./scripts/app.js" type="module"></script>
     </body>
 </html>

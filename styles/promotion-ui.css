@@ -1,0 +1,30 @@
+.promotion-ui{
+    z-index: 1000;
+    position: absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    border: 3px solid black;
+    border-radius: 25px;
+    
+    padding:15px 18px;
+    background-color: rgb(248, 247, 245);
+    display: none; /*flex*/
+}
+.option-button{
+    margin:5px;
+    border:none;
+    border-radius: 4px;
+    padding:5px 10px;
+    background-color:burlywood;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+}
+.option-button:hover{
+    background-color:rgb(192, 145, 82);
+}
+.option-button:active{
+    box-shadow: inset 1px 1px 4px black; /* offsetx offsety blur color*/
+}
