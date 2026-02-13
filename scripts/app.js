@@ -3,9 +3,15 @@ import { pieceMap, pieceObjects } from './pieces.js'
 
 const board = document.querySelector('.js-board');
 
-let turn = 'w';
 //render board
-renderApp();
+board.innerHTML = renderBoardHtml();
+
+//instantiate button function
+document.querySelectorAll('.js-board-square').forEach((button)=>{
+    button.addEventListener('click', ()=>{
+        handleBoardInput(button)
+        })
+    })
 
 document.querySelectorAll('.js-promotion-button').forEach((button)=>{
     button.addEventListener('click', ()=>{
@@ -15,22 +21,16 @@ document.querySelectorAll('.js-promotion-button').forEach((button)=>{
         pieceObjects[pieceId].type = type;
 
         const { position, id, color } = pieceObjects[pieceId];
-        const newPieceClass = pieceMap[type]
-        pieceObjects[pieceId] = new newPieceClass(type, position, id, color)
-
+        const newPieceClass = pieceMap[type];
+        pieceObjects[id] = new newPieceClass(type, position, id, color);
+        //refresh tile
+        const tileImage = document.querySelector(`.js-board-square-${position}`).querySelector('img');
+        console.log(tileImage)
+        console.log(pieceObjects[id])
+        tileImage.src = `
+        ./assets/${pieceObjects[id].type}-${color}.png`
         promotionUi.style.display = 'none';
-        renderApp()
     })
 })  
 
-function renderApp(){
-    board.innerHTML = renderBoardHtml();
-    //instantiate button function
-    document.querySelectorAll('.js-board-square').forEach((button)=>{
-        button.addEventListener('click', ()=>{
-            if(handleBoardInput(button, turn)){
-                renderApp();
-                turn = turn==='w'? 'b':'w';
-    }})
-})
-}
+

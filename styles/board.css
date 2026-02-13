@@ -12,7 +12,7 @@
 }
 .board-square-b:hover,
 .board-square-w:hover{
-    background-color: rgb(230, 230, 230);
+    background-color: rgba(230, 230, 230, 0.568);
 }
 
 .board-square-w{

@@ -18,53 +18,45 @@ class Piece{ //super
     }
     
     // || PUBLIC || \\
-    attemptMove(newPosition, boardState){
+    assessMove(boardState){
         //passing an int by value in any kind of training sense would get expensive
-        this.newPosition= newPosition;
         this.boardState= boardState;
-        //this should be at the top of each attemptMovement function 
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        this._assessMove();
-        this._updatePosition();
+
+        const allMoves = this._findAllMoves();
         //delete afterwards cause if running multiple boardstates in testing storing so many objects with those extra two paramaters is unessecary 
-        delete this.newPosition;
         delete this.boardState;
-        return true;
+        return allMoves;
         ////////////////////////////////////////////////////////////
     }
 
     // || PRIVATE || \\ 
-    _updatePosition(){
-        this.boardState[Number(this.position)] = '';
-        this.boardState[this.newPosition] = this;
-        this.position = this.newPosition;
-    }
+    // _updatePosition(){
+    //     this.boardState[Number(this.position)] = '';
+    //     this.boardState[this.newPosition] = this;
+    //     this.position = this.newPosition;
+    // }
     //does not make assumptions on validity of capture
-    _isTaking(){ 
-        return this.boardState[this.newPosition]? true: false;
+    _isTaking(position){ 
+        const piece = this.boardState[position];
+        return piece && (piece.color != this.color) ? true: false;
     }
-    _isSameColor(){
-        return this.boardState[this.newPosition].color === this.color? true : false;
+    _rowChange(position, absolute=true){
+        const cRow =  Math.floor(this.position / 8); 
+        const n_row = Math.floor((position) / 8);
+        return absolute? Math.abs(cRow - n_row): (cRow - n_row);
     }
-    _rowChange(absolute=true){
-        const c_row =  Math.floor(this.position / 8); 
-        const n_row = Math.floor((this.newPosition) / 8);
-        return absolute? Math.abs(c_row - n_row): (c_row - n_row);
+    _columnChange(position, absolute=true){
+        const cCol = this.position % 8;
+        const n_col = position % 8;
+        return absolute? (Math.abs(cCol - n_col)): (cCol - n_col);
     }
-    _columnChange(absolute=true){
-        const c_col = this.position % 8;
-        const n_col = this.newPosition % 8;
-        return absolute? (Math.abs(c_col - n_col)): (c_col - n_col);
-    }
+
     _findLimitHV(direction){ //['u','d','l','r'] //Horizontal Vertical
         let availableMoves=[];
         //HORIZONTAL 
         if (direction==='r' || direction==='l'){
-            const c_col = this.position % 8;
-            const availableCount = direction==='r'? (7 - c_col) : (c_col);
+            const cCol = this.position % 8;
+            const availableCount = direction==='r'? (7 - cCol) : (cCol);
             if (availableCount > 0){
                 const normalized = direction==='r'? 1 : -1;
                 for (let i=1; i <= availableCount; i++){
@@ -73,26 +65,68 @@ class Piece{ //super
             }
         }
         else if (direction==='u' || direction==='d'){
-            const c_row =  Math.floor(this.position / 8);
-            const availableCount = direction==='u'? (c_row) : (7-c_row)
+            const cRow =  Math.floor(this.position / 8);
+            const availableCount = direction==='u'? (cRow) : (7-cRow)
             if (availableCount > 0){
+                const normalized = direction==='u'? -1 : 1;
                 for (let i=1; i <= availableCount; i++){
-                    const normalized = direction==='u'? -1 : 1;
                     availableMoves.push(this.position + ((i * normalized) * 8))
                 }
             }
         }
         return availableMoves;
     }
-    //finds ma distance a piece can travel given a vector of available moves
-    _findMax(movesArray, distance=0){
+    _findLimitD(direction){ //['ul','ur','dl','dr']
+        let availableMoves=[];
+        let cPos = this.position;
+        let maxTraversable
+        if (direction === 'dr' || direction === 'ul'){
+            const cCol = this.position % 8;
+            const cRow =  Math.floor(this.position / 8);
+            if (direction ==='dr'){
+                maxTraversable = Math.min(7 - cCol, 7 - cRow);
+                 // :O
+            }
+            else{
+                maxTraversable = Math.min(cCol, cRow);
+            }
+            if( maxTraversable > 0){
+                const normalized = direction ==='dr'? 1 : -1;
+                for (let i = 0; i < maxTraversable; i++){
+                    availableMoves.push(cPos += (9 * normalized));
+                }    
+            }
+        }
+        //figuring these out hurt
+        else if (direction === 'ur' || direction === 'dl'){
+            const cCol = this.position % 8;
+            const cRow =  Math.floor(this.position / 8);
+            if (direction ==='ur'){
+                maxTraversable = (Math.min(7 - cCol, cRow));
+                console.log(maxTraversable)
+            }
+            else{
+                maxTraversable = Math.min(cCol, 7 - cRow);
+            }
+            if( maxTraversable > 0){
+                const normalized = direction ==='ur'? -1 : 1;
+                for (let i = 0; i < maxTraversable; i++){
+                    availableMoves.push(cPos += (7 * normalized));
+                }    
+            }
+        }
+        return availableMoves;
+    }
+    //finds max distance a piece can travel given a vector of available moves
+    _findMax(movesArray, distance=0, forwardPawn=false){
         if (distance){
             movesArray = movesArray.splice(0, distance);
         }
         let max;
         for (let i = 0; i < movesArray.length; i++){
             if (this.boardState[movesArray[i]]){
-                max = this.color === this.boardState[movesArray[i]].color? movesArray.splice(0, i) : movesArray.splice(0, i+1);
+                max = ((this.color === this.boardState[movesArray[i]].color) || forwardPawn)? 
+                    movesArray.splice(0, i) : movesArray.splice(0, i+1);
                 break;
             }
         }
@@ -101,10 +135,9 @@ class Piece{ //super
 };
 
 // || CHILD CLASSES || \\
-//TBD make it impossible to move king if putting king in check 
+//TBD make it impossible to move any piece if putting own king in check 
 // --> make super function (tbd post check/checkmate valiudation)
-//TBD no obstruction validation 
-// --> make super
+
 class Pawn extends Piece{
     direction = null //what direction that pawn can move
     constructor(type, position, id, color){
@@ -112,39 +145,33 @@ class Pawn extends Piece{
         this.direction = this.color === 'b'? -1 : 1;
     }
 
-    _assessMove(){ //returns true if move is valid, throws error if not
-        const isTaking = this._isTaking();
-        const rowChange = this._rowChange(false);
-        const colChange = this._columnChange(false);
+    _findAllMoves(){ //returns true if move is valid, throws error if not
+        // const isTaking = this._isTaking();
+        // const rowChange = this._rowChange(false);
+        // const colChange = this._columnChange(false);
 
-        //prevent self take
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
+        let allAvailableMoves=[];
+        const maxMove = this._isFirstMove() ? 2 : 1;
+        const letterDirection = this.direction === 1? 'u' : 'd';
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV(letterDirection), maxMove, true)));
+
+        const forwardR = (this._findMax(this._findLimitD(`${letterDirection}r`), 1))
+        this._isTaking(forwardR[0]) ? allAvailableMoves.push(forwardR[0]) : false;
+        const forwardL = (this._findMax(this._findLimitD(`${letterDirection}l`), 1))
+        this._isTaking(forwardL[0]) ? allAvailableMoves.push(forwardL[0]) : false;
+
+        return allAvailableMoves;
+    }
+    // A PUBLIC FUCNTION :0
+    isEndOfBoard(position){
+        if ((0 <= position && position <=7) && this.color === 'w'){
+            console.log('made it to end')
+            return true;
         }
-        //prevent horizontal movement and backwards movement
-        else if (rowChange != this.direction && rowChange != this.direction * 2){ //also prevents left/right movement
-            console.log('test1')
-            throw this.invalidMoveError;
+        else if ((56 <= position && position <=63) && this.color === 'b'){
+            return true;
         }
-        //prevent invalid taking with pawn
-        else if (isTaking && ( ((rowChange) != this.direction) || (Math.abs(colChange) != 1)) ){
-            throw this.invalidMoveError;
-        }
-        //prevent diagonal movement
-        else if((Math.abs(colChange) > 0) && !isTaking){
-            throw this.invalidMoveError;
-        }
-        //only allow +2 movement on first move 
-        else if (Math.abs(rowChange)===2 && !this._isFirstMove()){
-            throw this.invalidMoveError;
-            
-        }
-        
-        if(this._isEndOfBoard()){
-            const promotionUi = window.document.querySelector('.js-promotion-ui');
-            promotionUi.style.display='flex';
-            promotionUi.dataset.pieceId = this.id;
-        }
+         return false;
     }
 
     _isFirstMove(){
@@ -156,26 +183,19 @@ class Pawn extends Piece{
         }
         return false;
     }
-    _isEndOfBoard(){
-        if ((0 <= this.newPosition && this.newPosition <=7) && this.color === 'w'){
-            return true;
-        }
-        else if ((56 <= this.newPosition && this.newPosition <=63) && this.color === 'b'){
-            return true;
-        }
-         return false;
-    }
+    
 
 }
 class Rook extends Piece{
-    _assessMove(){
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        else if (this._columnChange() > 0 && this._rowChange() > 0){
-            throw this.invalidMoveError;
-        }
+    _findAllMoves(){
+        const directions = ['u','d','l','r']
+        let allAvailableMoves=[];
+
+        directions.forEach((direction)=>{
+            allAvailableMoves.push(...this._findMax(this._findLimitHV(direction)));
+        })
+        return allAvailableMoves;
+
     }
 }
 class Knight extends Piece{
@@ -191,39 +211,45 @@ class Knight extends Piece{
     }
 }
 class Bishop extends Piece{
-    _assessMove(){
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        else if ((this._columnChange()) != (this._rowChange())){
-            throw(this.invalidMoveError)
-        } 
+    
+    _findAllMoves(){
+        let allAvailableMoves = this._findMax(this._findLimitD('ul'));
+        allAvailableMoves.push(...this._findMax(this._findLimitD('dr')));
+        allAvailableMoves.push(...this._findMax(this._findLimitD('ur')));
+        allAvailableMoves.push(...this._findMax(this._findLimitD('dl')));
+        return allAvailableMoves;
     }
 }
 class King extends Piece{ 
-    possibleChange=[1,7,8,9] //positive and negative
+    _findAllMoves(){
+        let allAvailableMoves = [];
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('u'), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('d'), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('l'), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('r'), 1)));
 
-    _assessMove(){
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        else if (this._columnChange() > 1 || this._rowChange() > 1){
-            throw this.invalidMoveError;
-        }
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ur`), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ul`), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dr`), 1)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dl`), 1)));
+
+        return allAvailableMoves;
     }
 }
 class Queen extends Piece{
-    _assessMove(){
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        else if ( (this._columnChange() > 0 && this._rowChange() > 0) && 
-        (this._columnChange() != this._rowChange())){
-            throw this.invalidMoveError;
-        }
+    _findAllMoves(){
+        let allAvailableMoves = [];
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('u'))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('d'))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('l'))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('r'))));
+
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ur`))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ul`))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dr`))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dl`))));
+
+        return allAvailableMoves;
     }
 }
 
