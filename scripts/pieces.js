@@ -59,7 +59,45 @@ class Piece{ //super
         const n_col = this.newPosition % 8;
         return absolute? (Math.abs(c_col - n_col)): (c_col - n_col);
     }
-    
+    _findLimitHV(direction){ //['u','d','l','r'] //Horizontal Vertical
+        let availableMoves=[];
+        //HORIZONTAL 
+        if (direction==='r' || direction==='l'){
+            const c_col = this.position % 8;
+            const availableCount = direction==='r'? (7 - c_col) : (c_col);
+            if (availableCount > 0){
+                const normalized = direction==='r'? 1 : -1;
+                for (let i=1; i <= availableCount; i++){
+                    availableMoves.push(this.position + (i * normalized))
+                }
+            }
+        }
+        else if (direction==='u' || direction==='d'){
+            const c_row =  Math.floor(this.position / 8);
+            const availableCount = direction==='u'? (c_row) : (7-c_row)
+            if (availableCount > 0){
+                for (let i=1; i <= availableCount; i++){
+                    const normalized = direction==='u'? -1 : 1;
+                    availableMoves.push(this.position + ((i * normalized) * 8))
+                }
+            }
+        }
+        return availableMoves;
+    }
+    //finds ma distance a piece can travel given a vector of available moves
+    _findMax(movesArray, distance=0){
+        if (distance){
+            movesArray = movesArray.splice(0, distance);
+        }
+        let max;
+        for (let i = 0; i < movesArray.length; i++){
+            if (this.boardState[movesArray[i]]){
+                max = this.color === this.boardState[movesArray[i]].color? movesArray.splice(0, i) : movesArray.splice(0, i+1);
+                break;
+            }
+        }
+        return max? max : movesArray;
+    }
 };
 
 // || CHILD CLASSES || \\
@@ -68,7 +106,7 @@ class Piece{ //super
 //TBD no obstruction validation 
 // --> make super
 class Pawn extends Piece{
-    direction = null
+    direction = null //what direction that pawn can move
     constructor(type, position, id, color){
         super(type, position, id, color);
         this.direction = this.color === 'b'? -1 : 1;
