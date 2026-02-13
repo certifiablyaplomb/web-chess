@@ -1,18 +1,11 @@
-import { renderBoardHtml, handleBoardInput } from "./board.js";
+import { Board } from "./board.js";
 import { pieceMap, pieceObjects } from './pieces.js'
 
-const board = document.querySelector('.js-board');
 
-//render board
-board.innerHTML = renderBoardHtml();
+new Board;
 
-//instantiate button function
-document.querySelectorAll('.js-board-square').forEach((button)=>{
-    button.addEventListener('click', ()=>{
-        handleBoardInput(button)
-        })
-    })
 
+//ill leave this for now because it's partially ui and not board-- but will proabbly be moved to board
 document.querySelectorAll('.js-promotion-button').forEach((button)=>{
     button.addEventListener('click', ()=>{
         const promotionUi = document.querySelector('.js-promotion-ui');

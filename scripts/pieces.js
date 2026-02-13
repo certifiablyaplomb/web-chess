@@ -4,11 +4,6 @@ class Piece{ //super
     position=null //int
     id=null //int/index
     color=null //string 'w' || 'b'
-    // || ERRORS || \\
-    selfTakeError = new Error("You're taking your own piece!")
-    invalidMoveError = new Error("Invalid Move")
-
-
 
     constructor(type, position, id, color){
         this.type = type;
@@ -29,14 +24,7 @@ class Piece{ //super
         ////////////////////////////////////////////////////////////
     }
 
-    // || PRIVATE || \\ 
-    // _updatePosition(){
-    //     this.boardState[Number(this.position)] = '';
-    //     this.boardState[this.newPosition] = this;
-    //     this.position = this.newPosition;
-    // }
-    //does not make assumptions on validity of capture
-    
+    // || PRIVATE || \\     
 
     _findLimitHV(direction){ //['u','d','l','r'] //Horizontal Vertical
         let availableMoves=[];
@@ -90,7 +78,6 @@ class Piece{ //super
             const cRow =  Math.floor(this.position / 8);
             if (direction ==='ur'){
                 maxTraversable = (Math.min(7 - cCol, cRow));
-                console.log(maxTraversable)
             }
             else{
                 maxTraversable = Math.min(cCol, 7 - cRow);
@@ -119,7 +106,10 @@ class Piece{ //super
         }
         return max? max : movesArray;
     }
+
 };
+
+
 
 // || CHILD CLASSES || \\
 //TBD make it impossible to move any piece if putting own king in check 
@@ -148,7 +138,6 @@ class Pawn extends Piece{
     // A PUBLIC FUCNTION :0
     isEndOfBoard(position){
         if ((0 <= position && position <=7) && this.color === 'w'){
-            console.log('made it to end')
             return true;
         }
         else if ((56 <= position && position <=63) && this.color === 'b'){
@@ -227,7 +216,7 @@ class Knight extends Piece{
     }
     _isTakingOwn(position){ 
         const piece = this.boardState[position];
-        return piece.color === this.color;
+        return piece && piece.color === this.color;
     }
 }
 class Bishop extends Piece{
@@ -488,3 +477,13 @@ export const pieceObjects = pieceData.map((piece)=>{
     const pieceClass = pieceMap[type];
     return new pieceClass(type, position, id, color);
 })
+
+export function makePieces(){
+    const pieceObjects = pieceData.map((piece)=>{
+    const { type, position, id, color } = piece;
+    const pieceClass = pieceMap[type];
+    return new pieceClass(type, position, id, color);
+    })
+    return pieceObjects;
+}
+    
