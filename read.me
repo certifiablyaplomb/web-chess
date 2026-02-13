@@ -20,13 +20,6 @@ Decisions: Check Validation and Checkmate validation location-- these functions 
 
       app --> board --> pieces --> evaluate 
 
+--- As it stands I'll be turning the board into an object and adding check validation as a function of the board 
 
-OPTIONAL CHANGE -- change the assesment functions to instead return a list of legal moves
-  -benefit-- no ifs just a couple of parameters for what would be a default legal move than checking if each one violates 
-   rules of the board (ex1. 
-                          this move would be legal but it puts king in check so it's not
-                       ex2. 
-                          this move would be legal but there's a piece blocking it)
 
-  -downside-- that assesment would have to be run for every theoretical move every time a piece is selected-- which could get expensive in ai training
- 

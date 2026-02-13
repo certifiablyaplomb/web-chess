@@ -18,7 +18,7 @@ class Piece{ //super
     }
     
     // || PUBLIC || \\
-    assessMove(boardState){
+    assessMoves(boardState){
         //passing an int by value in any kind of training sense would get expensive
         this.boardState= boardState;
 
@@ -36,20 +36,7 @@ class Piece{ //super
     //     this.position = this.newPosition;
     // }
     //does not make assumptions on validity of capture
-    _isTaking(position){ 
-        const piece = this.boardState[position];
-        return piece && (piece.color != this.color) ? true: false;
-    }
-    _rowChange(position, absolute=true){
-        const cRow =  Math.floor(this.position / 8); 
-        const n_row = Math.floor((position) / 8);
-        return absolute? Math.abs(cRow - n_row): (cRow - n_row);
-    }
-    _columnChange(position, absolute=true){
-        const cCol = this.position % 8;
-        const n_col = position % 8;
-        return absolute? (Math.abs(cCol - n_col)): (cCol - n_col);
-    }
+    
 
     _findLimitHV(direction){ //['u','d','l','r'] //Horizontal Vertical
         let availableMoves=[];
@@ -145,11 +132,7 @@ class Pawn extends Piece{
         this.direction = this.color === 'b'? -1 : 1;
     }
 
-    _findAllMoves(){ //returns true if move is valid, throws error if not
-        // const isTaking = this._isTaking();
-        // const rowChange = this._rowChange(false);
-        // const colChange = this._columnChange(false);
-
+    _findAllMoves(){ 
         let allAvailableMoves=[];
         const maxMove = this._isFirstMove() ? 2 : 1;
         const letterDirection = this.direction === 1? 'u' : 'd';
@@ -184,7 +167,10 @@ class Pawn extends Piece{
         return false;
     }
     
-
+    _isTaking(position){ 
+        const piece = this.boardState[position];
+        return piece && (piece.color != this.color) ? true: false;
+    }
 }
 class Rook extends Piece{
     _findAllMoves(){
@@ -199,15 +185,49 @@ class Rook extends Piece{
     }
 }
 class Knight extends Piece{
-    _assessMove(){
-        const isTaking = this._isTaking()
-        if (isTaking && this._isSameColor()){
-            throw this.selfTakeError;
-        }
-        else if ( !( ((this._columnChange() == 2) && (this._rowChange() == 1)) ||
-        ((this._columnChange() == 1) && (this._rowChange() == 2)) )){
-            throw this.invalidMoveError;
+     // + -
+    
+    _findAllMoves(){
+        let allAvailableMoves =[];
+        const moveMap = [
+            -6, -10, -15, -17,
+            6, 10, 15, 17
+        ]
+        moveMap.forEach((move)=>{
+            const position = move + this.position;
+            if (position >=0 && position <=63){
+                this._assessMove(position)? allAvailableMoves.push(position) : false;
             }
+        })
+
+        return allAvailableMoves.filter((position)=>{
+            if(!this._isTakingOwn(position)){
+                return position
+            }
+        });
+    }
+    
+    _assessMove(position){
+    if ( ( ((this._columnChange(position) == 2) && (this._rowChange(position) == 1)) ||
+        ((this._columnChange(position) == 1) && (this._rowChange(position) == 2)) )){
+            return true;
+        }
+    return false; 
+    }
+
+    _rowChange(position, absolute=true){
+        const cRow =  Math.floor(this.position / 8); 
+        const n_row = Math.floor((position) / 8);
+        return absolute? Math.abs(cRow - n_row): (cRow - n_row);
+    }
+    _columnChange(position, absolute=true){
+        const cCol = this.position % 8;
+        const n_col = position % 8;
+        return absolute? (Math.abs(cCol - n_col)): (cCol - n_col);
+    }
+    _isTakingOwn(position){ 
+        const piece = this.boardState[position];
+        return piece.color === this.color;
     }
 }
 class Bishop extends Piece{

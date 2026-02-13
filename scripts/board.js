@@ -37,7 +37,7 @@ export function handleBoardInput(button){
             id = pieceSelected.dataset.id;
 
             button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
-            availableMoves = pieceObjects[id].assessMove(boardState)
+            availableMoves = pieceObjects[id].assessMoves(boardState)
         }
         else if(pieceObjects[piece.dataset.id].color === turn){ //if clicking piece of same color
             //reset prev button
@@ -50,7 +50,7 @@ export function handleBoardInput(button){
                 button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
                 pieceSelected = piece;
                 id = pieceSelected.dataset.id;
-                availableMoves = pieceObjects[id].assessMove(boardState)
+                availableMoves = pieceObjects[id].assessMoves(boardState)
             }
             else{
                 pieceSelected=null;
