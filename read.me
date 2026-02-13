@@ -1,2 +1,22 @@
 The main distress to me right now is that pawn propotion is handled in the app module rather than the actual class
 i have thoughts on fixing, but will likely rewrite later
+
+Decisions: Check Validation and Checkmate validation location-- these functions can either:
+- go in their own module
+- go into board module 
+- go into pieces module 
+
+-primary con of it being in board module is circular imports if i want to uses it in pieces 
+    - work around is to just have pieces see if a move is legitamte then have the board make final say 
+      before it renders the game and continues next turn
+        -issue is that may feel weird because multiple types of move validation are happening in different modules
+
+-primary con of putting it in pieces is that makes for a lot of code in one module 
+    - benefit is that it will be easy to work with
+
+-primary con of putting it in it's own module is that it's probaly an unecessary module 
+    - benefit is clear organizational structure and it can be directly imported into pieces
+      no circular import error 
+
+      app --> board --> pieces --> evaluate 
+                            

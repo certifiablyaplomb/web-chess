@@ -1,7 +1,6 @@
 import { pieceObjects } from "./pieces.js";
 
 
-
 export function renderBoardHtml(){
     let boardHtml = '';
     let parser = 0;

@@ -1,3 +1,4 @@
+// USE BUILT IN PIECE FUNCTIONS-- THEY ENSURE NO ROW OVERFLOW \\
 class Piece{ //super
     type=null //string
     position=null //int
@@ -50,28 +51,14 @@ class Piece{ //super
         const n_col = newPosition % 8;
         return absolute? (Math.abs(c_col - n_col)): (c_col - n_col);
     }
-    _isFirstMove(){
-        if ((8 <= this.position && this.position <=15) && this.color === 'b'){
-            return true;
-        }
-        else if ((48 <= this.position && this.position <=55) && this.color === 'w'){
-            return true;
-        }
-        return false;
-    }
-    _isEndOfBoard(newPosition){
-        if ((0 <= newPosition && newPosition <=7) && this.color === 'w'){
-            return true;
-        }
-        else if ((56 <= newPosition && newPosition <=63) && this.color === 'b'){
-            return true;
-        }
-         return false;
-    }
+    
 };
 
 // || CHILD CLASSES || \\
-
+//TBD make it impossible to move king if putting king in check 
+// --> make super function (tbd post check/checkmate valiudation)
+//TBD no obstruction validation 
+// --> make super
 class Pawn extends Piece{
     direction = null
     
@@ -111,6 +98,7 @@ class Pawn extends Piece{
             throw this.invalidMoveError;
             
         }
+        
         if(this._isEndOfBoard(newPosition)){
             const promotionUi = window.document.querySelector('.js-promotion-ui');
             promotionUi.style.display='flex';
@@ -120,6 +108,25 @@ class Pawn extends Piece{
         return true;
     }
 
+    _isFirstMove(){
+        if ((8 <= this.position && this.position <=15) && this.color === 'b'){
+            return true;
+        }
+        else if ((48 <= this.position && this.position <=55) && this.color === 'w'){
+            return true;
+        }
+        return false;
+    }
+    _isEndOfBoard(newPosition){
+        if ((0 <= newPosition && newPosition <=7) && this.color === 'w'){
+            return true;
+        }
+        else if ((56 <= newPosition && newPosition <=63) && this.color === 'b'){
+            return true;
+        }
+         return false;
+    }
+
 }
 class Rook extends Piece{
     attemptMove(newPosition, boardState){
@@ -127,20 +134,23 @@ class Rook extends Piece{
         if (isTaking && this._isSameColor(newPosition, boardState)){
             throw this.selfTakeError;
         }
-        if (this._columnChange(newPosition) > 0 && this._rowChange(newPosition) > 0){
+        else if (this._columnChange(newPosition) > 0 && this._rowChange(newPosition) > 0){
             throw this.invalidMoveError;
         }
         this._updatePosition(newPosition, boardState);
         return true;
     }
 }
-//start here
 class Knight extends Piece{
     attemptMove(newPosition, boardState){
         const isTaking = this._isTaking(newPosition, boardState)
         if (isTaking && this._isSameColor(newPosition, boardState)){
             throw this.selfTakeError;
         }
+        else if ( !( ((this._columnChange(newPosition) == 2) && (this._rowChange(newPosition) == 1)) ||
+        ((this._columnChange(newPosition) == 1) && (this._rowChange(newPosition) == 2)) )){
+            throw this.invalidMoveError;
+            }
         this._updatePosition(newPosition, boardState);
         return true;
     }
@@ -151,15 +161,24 @@ class Bishop extends Piece{
         if (isTaking && this._isSameColor(newPosition, boardState)){
             throw this.selfTakeError;
         }
+        else if ((this._columnChange(newPosition)) != (this._rowChange(newPosition))){
+            throw(this.invalidMoveError)
+        }
         this._updatePosition(newPosition, boardState);
         return true;
+        
     }
 }
-class King extends Piece{
+class King extends Piece{ 
+    possibleChange=[1,7,8,9] //positive and negative
+
     attemptMove(newPosition, boardState){
         const isTaking = this._isTaking(newPosition, boardState)
         if (isTaking && this._isSameColor(newPosition, boardState)){
             throw this.selfTakeError;
+        }
+        else if (this._columnChange(newPosition) > 1 || this._rowChange(newPosition) > 1){
+            throw this.invalidMoveError;
         }
         this._updatePosition(newPosition, boardState);
         return true;
@@ -170,6 +189,10 @@ class Queen extends Piece{
         const isTaking = this._isTaking(newPosition, boardState)
         if (isTaking && this._isSameColor(newPosition, boardState)){
             throw this.selfTakeError;
+        }
+        else if ( (this._columnChange(newPosition) > 0 && this._rowChange(newPosition) > 0) && 
+        (this._columnChange(newPosition) != this._rowChange(newPosition))){
+            throw this.invalidMoveError;
         }
         this._updatePosition(newPosition, boardState);
         return true;
