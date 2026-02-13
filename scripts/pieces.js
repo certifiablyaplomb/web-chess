@@ -4,9 +4,6 @@ class Piece{ //super
     position=null //int
     id=null //int/index
     color=null //string 'w' || 'b'
-
-    newPosition=null
-    boardState=null
     // || ERRORS || \\
     selfTakeError = new Error("You're taking your own piece!")
     invalidMoveError = new Error("Invalid Move")
@@ -32,6 +29,9 @@ class Piece{ //super
         }
         this._assessMove();
         this._updatePosition();
+        //delete afterwards cause if running multiple boardstates in testing storing so many objects with those extra two paramaters is unessecary 
+        delete this.newPosition;
+        delete this.boardState;
         return true;
         ////////////////////////////////////////////////////////////
     }
