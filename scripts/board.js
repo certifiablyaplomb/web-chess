@@ -39,7 +39,7 @@ export class Board{
         }
         
         this.boardState = Array.from({ length: 64 }, (_, index) => {
-        const piece = this.boardsPieces.find((piece)=>piece.position === index) || '';
+        const piece = this.boardsPieces.find((piece)=> piece && piece.position === index) || ''; //that and gate saved a lot of trouble
         if (piece && piece.type === 'king'){
             piece.color === 'w'? this.wKing = piece.position : this.bKing = piece.position;
         }
@@ -51,8 +51,8 @@ export class Board{
         if(!boardCopy){
 
             this.mainDisplay = true;
-            this.#renderBoardHtml();
-            this.#renderPromotionUI();
+            document.querySelector('.js-board').innerHTML = this.#renderBoardHtml();
+            this.#addAllButtonFunctionality();
         }
 
     }
@@ -69,7 +69,7 @@ export class Board{
 
     //one time use //
    #renderBoardHtml(){
-        const board = document.querySelector('.js-board');
+        
         let boardHtml = '';
         let parser = 0;
         let count = 0;
@@ -92,21 +92,22 @@ export class Board{
             }
         })
 
-        board.innerHTML = boardHtml;    
+        return boardHtml;    
         //add fucntionality to squares
+    };
+    #addAllButtonFunctionality(){
+        //board
         document.querySelectorAll('.js-board-square').forEach((button)=>{
-        button.addEventListener('click', ()=>{
-            this.#handleBoardInput(button);
+            button.addEventListener('click', ()=>{
+                this.#handleBoardInput(button);
             })
         })
         //add functionality to toggleShowMoves button
         const toggleShowMoves = document.querySelector('.js-toggle-moves');
             toggleShowMoves.addEventListener('change', ()=>{
-            this.#toggleShowMoves(toggleShowMoves.checked)
+            this.#toggleShowMoves(!(toggleShowMoves.checked))
         });
-    };  
-    // one time use
-    #renderPromotionUI(){
+        //promotion button options
         document.querySelectorAll('.js-promotion-button').forEach((button)=>{
             button.addEventListener('click', ()=>{
                 const promotionUi = document.querySelector('.js-promotion-ui');
@@ -124,7 +125,8 @@ export class Board{
                 promotionUi.style.display = 'none';
             })
         })  
-    }
+    }  
+   
 
     #handleBoardInput(button){
         const {index} = button.dataset;
@@ -174,11 +176,11 @@ export class Board{
     }
 
     #movePiece(piece, newPosition, testBoard=false){
-        //if king update position
+    //if king update position
         if(piece.type === 'king'){
             (piece.color ==='w') ? this.wKing = newPosition: this.bKing = newPosition;
         }
-    //check if pawn is getting promoted 
+        //check if pawn is getting promoted 
         if (this.mainDisplay && piece.type === 'pawn' && piece.isEndOfBoard(newPosition)){
             const promotionUi = document.querySelector('.js-promotion-ui');
             promotionUi.style.display='flex';
@@ -201,11 +203,17 @@ export class Board{
             }
         }
         
+        //UPDATE BOARD PIECES IF PIECE WAS TAKEN
+        if(piece.isTaking(newPosition, this.boardState)){
+            //remove from board pieces
+            const takenPieceID = this.boardState[newPosition].id;
+            this.boardsPieces[takenPieceID] = null;
+        }
         //BOARDSTATE UPDATE
         this.boardState[piece.position] = '';
         this.boardState[newPosition] = piece;
-        //disinstantiate available moves
 
+        //disinstantiate available moves
         this.availableMoves = []
         //OBJECT UPDATE
         piece.position= newPosition;
@@ -228,6 +236,7 @@ export class Board{
 
         this.turn = this.turn==='w'? 'b':'w';
         this.pieceSelected = null;
+        
     }
 
     #startOfOpponentTurn(){
@@ -331,7 +340,7 @@ export class Board{
     
     #checkForCheckMate(color){
         return !this.boardsPieces.some((piece) => {
-            if (piece.color === color){
+            if (piece && piece.color === color){
                 const moves = piece.assessMoves(this.boardState);
                 return moves.some((move)=>{
                     return !(this.#checkForCheck(color, piece.position, move)) //color to check, kings location, potential move

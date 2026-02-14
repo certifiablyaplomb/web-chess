@@ -24,9 +24,12 @@ class Piece{ //super
         return allMoves;
         ////////////////////////////////////////////////////////////
     }
-
+    //Public
+    isTaking(position, boardState=this.boardState){ 
+        const piece = boardState[position];
+        return piece && (piece.color != this.color) ? true: false;
+    }
     // || PRIVATE || \\     
-
     _findLimitHV(direction){ //['u','d','l','r'] //Horizontal Vertical
         let availableMoves=[];
         //HORIZONTAL 
@@ -146,9 +149,9 @@ class Pawn extends Piece{
         allAvailableMoves.push(...(this._findMax(this._findLimitHV(letterDirection), maxMove, true)));
 
         const forwardR = (this._findMax(this._findLimitD(`${letterDirection}r`), 1))
-        this._isTaking(forwardR[0]) ? allAvailableMoves.push(forwardR[0]) : false;
+        this.isTaking(forwardR[0]) ? allAvailableMoves.push(forwardR[0]) : false;
         const forwardL = (this._findMax(this._findLimitD(`${letterDirection}l`), 1))
-        this._isTaking(forwardL[0]) ? allAvailableMoves.push(forwardL[0]) : false;
+        this.isTaking(forwardL[0]) ? allAvailableMoves.push(forwardL[0]) : false;
 
         return allAvailableMoves;
     }
@@ -173,10 +176,7 @@ class Pawn extends Piece{
         return false;
     }
     
-    _isTaking(position){ 
-        const piece = this.boardState[position];
-        return piece && (piece.color != this.color) ? true: false;
-    }
+    
 }
 class Rook extends Piece{
     _findAllMoves(){
@@ -499,9 +499,12 @@ export const pieceObjects = pieceData.map((piece)=>{
 export function makePieces(listToClone=null){
     const objectToCopy = listToClone? listToClone : pieceData;
     const pieceObjects = objectToCopy.map((piece)=>{
-    const { type, position, id, color } = piece;
-    const pieceClass = pieceMap[type];
-    return new pieceClass(type, position, id, color);
+        if (piece){
+            const { type, position, id, color } = piece;
+            const pieceClass = pieceMap[type];
+            return new pieceClass(type, position, id, color);
+        }
+        return null;
     })
     return pieceObjects;
 }

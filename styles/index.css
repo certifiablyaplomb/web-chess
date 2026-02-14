@@ -1,0 +1,31 @@
+
+
+.main-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 65vh;
+    min-height: 450px;;
+    width:40vh;
+    min-width: 275px;
+    background-color:antiquewhite ;
+    border:3px solid rgb(138, 102, 54);
+    border-radius: 15px;
+}
+
+.index-button{
+    display: flex;
+    justify-content: center;
+    width:65%;
+    padding:20px 10px;
+    font-size: 18px;
+    color:rgb(80, 43, 0);
+    margin:25px;
+}
+.index-button:hover{
+    background-color:rgb(192, 145, 82);
+}
+.index-button:active{
+    box-shadow: inset 1px 1px 4px black; /* offsetx offsety blur color*/
+}

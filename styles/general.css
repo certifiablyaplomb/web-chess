@@ -4,3 +4,23 @@ body{
     justify-content: center;
     background-color: darkslategrey;
 }
+text{
+    color:rgb(80, 43, 0);
+}
+.clickable-button{
+    margin:5px;
+    border:none;
+    border-radius: 4px;
+    padding:5px 10px;
+    background-color:burlywood;
+
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+}
+button:hover{
+    background-color:rgb(192, 145, 82);
+}
+button:active{
+    box-shadow: inset 1px 1px 4px black; /* offsetx offsety blur color*/
+}
