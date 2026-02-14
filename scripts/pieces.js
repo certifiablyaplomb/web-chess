@@ -301,13 +301,13 @@ const pieceData = [
         color: 'b'
     },
     {
-        type: 'queen',
+        type: 'king',
         position: 3,
         id:3,
         color: 'b'
     },
     {
-        type: 'king',
+        type: 'queen',
         position: 4,
         id:4,
         color: 'b'
@@ -448,13 +448,13 @@ const pieceData = [
         color: 'w'
     },
     {
-        type: 'king',
+        type: 'queen',
         position: 59,
         id:27,
         color: 'w'
     },
     {
-        type: 'queen',
+        type: 'king',
         position: 60,
         id:28,
         color: 'w'

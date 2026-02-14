@@ -28,6 +28,9 @@ export class Board{
 
     wKing = 0;
     bKing = 0;
+
+    bInCheck = false;
+    wInCheck = false;
     
     constructor(boardCopy=false, boardsPieces=null, turn='w'){
         this.boardsPieces = boardsPieces? makePieces(boardsPieces) : makePieces(); 
@@ -43,8 +46,10 @@ export class Board{
         return piece;
         });
         this.turn = turn;
+        
         //only render html for a fresh board-- otherwise odds are it's BTS simulated moves
         if(!boardCopy){
+
             this.mainDisplay = true;
             this.#renderBoardHtml();
             this.#renderPromotionUI();
@@ -122,51 +127,57 @@ export class Board{
     }
 
     #handleBoardInput(button){
-    const {index} = button.dataset;
-    const piece = button.querySelector('img');
-    if(piece && piece.dataset.color === this.turn){ //if clicking piece of own color
-        
-        if(piece && !this.pieceSelected){ //if clicking piece for first time
-            this.pieceSelected = piece;
-            button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
-            this.availableMoves = this.boardsPieces[this.pieceSelected.dataset.id].assessMoves(this.boardState)
-        }
-        else{ 
-            //reset prev button
-            const prevChoice = this.boardsPieces[this.pieceSelected.dataset.id].position;
-            this.#colorMoves([prevChoice], '');
-            this.#colorMoves(this.availableMoves, '');
-
-            if (this.boardsPieces[piece.dataset.id] != this.boardsPieces[this.pieceSelected.dataset.id]){
-                //set new available moves
-                button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
+        const {index} = button.dataset;
+        const piece = button.querySelector('img');
+        if(piece && piece.dataset.color === this.turn){ //if clicking piece of own color
+            
+            if(piece && !this.pieceSelected){ //if clicking piece for first time
                 this.pieceSelected = piece;
+                button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
                 this.availableMoves = this.boardsPieces[this.pieceSelected.dataset.id].assessMoves(this.boardState)
             }
-            else{
-                //unclick if clicking same piece
-                this.pieceSelected=null;
-                this.availableMoves=[];
+            else{ 
+                //reset prev button
+                const prevChoice = this.boardsPieces[this.pieceSelected.dataset.id].position;
+                this.#colorMoves([prevChoice], '');
+                this.#colorMoves(this.availableMoves, '');
+
+                if (this.boardsPieces[piece.dataset.id] != this.boardsPieces[this.pieceSelected.dataset.id]){
+                    //set new available moves
+                    button.style.backgroundColor = 'rgba(230, 230, 230, 0.568)';
+                    this.pieceSelected = piece;
+                    this.availableMoves = this.boardsPieces[this.pieceSelected.dataset.id].assessMoves(this.boardState)
+                }
+                else{
+                    //unclick if clicking same piece
+                    this.pieceSelected=null;
+                    this.availableMoves=[];
+                }
+                
             }
-            
+            if (this.pieceSelected){
+                this.availableMoves = this.availableMoves.filter((move)=>{
+                    return !(this.#checkForCheck(this.turn, this.boardsPieces[this.pieceSelected.dataset.id].position, move));
+                })
+            }
+            this.toggleShowMoves ? this.#colorMoves(this.availableMoves, 'rgba(230, 230, 230, 0.8)') : null;
         }
-        if (this.pieceSelected){
-            this.availableMoves = this.availableMoves.filter((move)=>{
-                return !(this.#checkForCheck(this.turn, this.boardsPieces[this.pieceSelected.dataset.id].position, move));
-            })
+        //move selected piece
+        else if(this.pieceSelected){
+            if ( this.availableMoves.includes(Number(index)) ){
+                const pieceToMove = this.boardsPieces[this.pieceSelected.dataset.id]
+                //take yourself out of check aswell if you were in it
+
+                this.#movePiece(pieceToMove, Number(index));
+            }
         }
-        this.toggleShowMoves? this.#colorMoves(this.availableMoves, 'rgba(230, 230, 230, 0.8)') : null;
-    }
-    //move selected piece
-    else if(this.pieceSelected){
-        if ( this.availableMoves.includes(Number(index)) ){
-            const pieceToMove = this.boardsPieces[this.pieceSelected.dataset.id]
-            this.#movePiece(pieceToMove, Number(index));
-        }
-    }
     }
 
     #movePiece(piece, newPosition, testBoard=false){
+        //if king update position
+        if(piece.type === 'king'){
+            (piece.color ==='w') ? this.wKing = newPosition: this.bKing = newPosition;
+        }
     //check if pawn is getting promoted 
         if (this.mainDisplay && piece.type === 'pawn' && piece.isEndOfBoard(newPosition)){
             const promotionUi = document.querySelector('.js-promotion-ui');
@@ -180,23 +191,62 @@ export class Board{
             const nTile = document.querySelector(`.js-board-square-${newPosition}`);
             nTile.innerHTML = cTile.innerHTML;
             cTile.innerHTML = '';
+
+            this.#colorMoves([piece.position], '');
+            this.#colorMoves(this.availableMoves, '');
+            //CHECK IF PUT OPPONENT IN CHECK BEFORE BOARDSTATE UPDATE
+            const opponentTurn = this.turn === 'w' ? 'b': 'w';
+            if (this.#checkForCheck(opponentTurn, piece.position, newPosition)){
+                opponentTurn === 'w' ? this.wInCheck = true : this.bInCheck = true;
+            }
         }
+        
         //BOARDSTATE UPDATE
         this.boardState[piece.position] = '';
         this.boardState[newPosition] = piece;
         //disinstantiate available moves
-        this.#colorMoves([piece.position], '');
-        this.#colorMoves(this.availableMoves, '');
+
         this.availableMoves = []
         //OBJECT UPDATE
         piece.position= newPosition;
         //swap turns
-        this.turn = this.turn==='w'? 'b':'w';
-        this.pieceSelected = null;
+        this.#endOfTurn();
+        this.#startOfOpponentTurn()
 
     }
 
-    #colorMoves(moves, color){
+    #endOfTurn(){
+        if (this.turn === 'w' && this.wInCheck){
+            this.wInCheck = false;
+        }
+        else if (this.turn === 'b' && this.bInCheck){
+            this.bInCheck = false;
+        }
+
+        this.turn = this.turn==='w'? 'b':'w';
+        this.pieceSelected = null;
+    }
+
+    #startOfOpponentTurn(){
+        if (this.turn === 'w' && this.wInCheck){
+            if (this.#checkForCheckMate('w')){
+                console.log('White Has Lost')
+                }
+            else{
+                console.log('White Is In Check')
+                }
+            }   
+        else if (this.turn === 'b' && this.bInCheck){
+            if (this.#checkForCheckMate('b')){
+                console.log('Black Has Lost')
+                }
+            else{
+                console.log('Black Is In Check')
+                }
+        }
+    }
+
+    #colorMoves(moves, color, testBoard=false){
         moves.forEach((tileIndex) => {
             const tile = document.querySelector(`.js-board-square-${tileIndex}`);
             tile.style.backgroundColor=color;
@@ -209,17 +259,17 @@ export class Board{
 
     #checkForCheck(color, cPos, nPos){ //returns true if in check
         let testBoard = new Board(true, this.boardsPieces) //turn doesn't matter for checking check
-        const kingToTest = color === 'w' ? testBoard.wKing : testBoard.bKing;
+
         testBoard.#movePiece(testBoard.boardState[cPos], nPos, true);
+        const kingToTest = color === 'w' ? testBoard.wKing : testBoard.bKing;
         
         //Queen Sweep
         let kPiece = testBoard.boardState[kingToTest];
         kPiece = new Queen('queen', kPiece.position, kPiece.id, kPiece.color)
         let accessibleAt = kPiece.assessMoves(testBoard.boardState, true); //returns locations of any piece colliding of opposing color
-        
         let inCheck = accessibleAt.some((pos)=>{ //check if pieces actually matter
             const type = testBoard.boardState[pos].type
-            if(['queen', 'bishop', 'rook', 'pawn'].includes(type)){
+            if(['queen', 'bishop', 'rook', 'king', 'pawn'].includes(type)){
                 if (type === 'queen'){
                     return true;
                 }
@@ -233,6 +283,11 @@ export class Board{
                 }
                 if(type === 'rook'){
                     if (rChange != cChange){
+                        return true;
+                    }
+                }
+                if(type === 'king'){ //not possible, but prevents pieces from trying it
+                    if ((rChange <= 1 && cChange <= 1)){
                         return true;
                     }
                 }
@@ -269,8 +324,21 @@ export class Board{
         //i coudlnt delete testboard at end so i turned it to null instead
         testBoard = null;  
         return false;
-    }  
+    } 
+    
+    #checkForCheckMate(color){
+        return !this.boardsPieces.some((piece) => {
+            if (piece.color === color){
+                const moves = piece.assessMoves(this.boardState);
+                return moves.some((move)=>{
+                    return !(this.#checkForCheck(color, piece.position, move)) //color to check, kings location, potential move
+                })
+            }
+        })
+    }
 }
+
+
 
 const gameBoard = new Board();
 
