@@ -1,14 +1,16 @@
-import { makePieces } from "./pieces.js";
+import { makePieces, pieceMap } from "./pieces.js";
 
 export class Board{
+    //variables assigned to null pre-construct are objects
+    mainDisplay=false;
     boardsPieces=null;
-    boardState = null;
-    turn = null;
-    pieceSelected = null;
+    boardState = [];
+    turn = '';
+    pieceSelected = '';
     availableMoves = [];
 
-    wKing = null;
-    bKing = null;
+    wKing = 0;
+    bKing = 0;
     
     constructor(boardState=null, turn='w', wKing=null, bKing=null){
         this.boardsPieces = makePieces(); 
@@ -29,12 +31,18 @@ export class Board{
         }
         this.turn = turn;
 
+
+
         //only render html for a fresh board-- otherwise odds are it's BTS simulated moves
-        !boardState? this.#renderBoardHtml() : false;
+        if(!boardState){
+            this.mainDisplay = true;
+            this.#renderBoardHtml();
+            this.#renderPromotionUI();
+        }
     }
     //one time use //
    #renderBoardHtml(){
-        const board = window.document.querySelector('.js-board');
+        const board = document.querySelector('.js-board');
         let boardHtml = '';
         let parser = 0;
         let count = 0;
@@ -61,7 +69,7 @@ export class Board{
 
         document.querySelectorAll('.js-board-square').forEach((button)=>{
         button.addEventListener('click', ()=>{
-            this.#handleBoardInput(button)
+            this.#handleBoardInput(button);
             })
         })
     };  
@@ -106,15 +114,15 @@ export class Board{
 
     #movePiece(piece, newPosition){
     //check if pawn is getting promoted 
-        if (piece.constructor.name === 'Pawn' && piece.isEndOfBoard(newPosition)){
-            const promotionUi = window.document.querySelector('.js-promotion-ui');
+        if (this.mainDisplay && piece.constructor.name === 'Pawn' && piece.isEndOfBoard(newPosition)){
+            const promotionUi = document.querySelector('.js-promotion-ui');
             promotionUi.style.display='flex';
             promotionUi.dataset.pieceId = piece.id;
         }
         //VISUAL UPDATE
         const cPos = piece.position;
-        const cTile = window.document.querySelector(`.js-board-square-${cPos}`);
-        const nTile = window.document.querySelector(`.js-board-square-${newPosition}`);
+        const cTile = document.querySelector(`.js-board-square-${cPos}`);
+        const nTile = document.querySelector(`.js-board-square-${newPosition}`);
         nTile.innerHTML = cTile.innerHTML;
         cTile.innerHTML = '';
         //BOARDSTATE UPDATE
@@ -130,12 +138,34 @@ export class Board{
         this.turn = this.turn==='w'? 'b':'w';
         this.pieceSelected = null;
 
-        }
+    }
 
     #colorMoves(moves, color){
         moves.forEach((tileIndex) => {
-            const tile = window.document.querySelector(`.js-board-square-${tileIndex}`);
+            const tile = document.querySelector(`.js-board-square-${tileIndex}`);
             tile.style.backgroundColor=color;
         })
     }
+
+    #renderPromotionUI(){
+        document.querySelectorAll('.js-promotion-button').forEach((button)=>{
+            button.addEventListener('click', ()=>{
+                const promotionUi = document.querySelector('.js-promotion-ui');
+                const pieceId = promotionUi.dataset.pieceId;
+                const type = button.dataset.type;
+                this.boardsPieces[pieceId].type = type;
+        
+                const { position, id, color } = this.boardsPieces[pieceId];
+                const newPieceClass = pieceMap[type];
+                this.boardsPieces[id] = new newPieceClass(type, position, id, color);
+                //refresh tile
+                const tileImage = document.querySelector(`.js-board-square-${position}`).querySelector('img');
+                tileImage.src = `
+                ./assets/${this.boardsPieces[id].type}-${color}.png`
+                promotionUi.style.display = 'none';
+            })
+        })  
+    }
 }
+
+new Board();
