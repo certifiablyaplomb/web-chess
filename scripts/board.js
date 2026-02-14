@@ -1,4 +1,4 @@
-import { makePieces, pieceMap } from "./pieces.js";
+import { Queen, Knight, makePieces, pieceMap } from "./pieces.js";
 
 export class Board{
     //variables assigned to null pre-construct are objects
@@ -73,6 +73,26 @@ export class Board{
             })
         })
     };  
+    // one time use
+    #renderPromotionUI(){
+        document.querySelectorAll('.js-promotion-button').forEach((button)=>{
+            button.addEventListener('click', ()=>{
+                const promotionUi = document.querySelector('.js-promotion-ui');
+                const pieceId = promotionUi.dataset.pieceId;
+                const type = button.dataset.type;
+                this.boardsPieces[pieceId].type = type;
+        
+                const { position, id, color } = this.boardsPieces[pieceId];
+                const newPieceClass = pieceMap[type];
+                this.boardsPieces[id] = new newPieceClass(type, position, id, color);
+                //refresh tile
+                const tileImage = document.querySelector(`.js-board-square-${position}`).querySelector('img');
+                tileImage.src = `
+                ./assets/${this.boardsPieces[id].type}-${color}.png`
+                promotionUi.style.display = 'none';
+            })
+        })  
+    }
 
     #handleBoardInput(button){
     const {index} = button.dataset;
@@ -147,25 +167,16 @@ export class Board{
         })
     }
 
-    #renderPromotionUI(){
-        document.querySelectorAll('.js-promotion-button').forEach((button)=>{
-            button.addEventListener('click', ()=>{
-                const promotionUi = document.querySelector('.js-promotion-ui');
-                const pieceId = promotionUi.dataset.pieceId;
-                const type = button.dataset.type;
-                this.boardsPieces[pieceId].type = type;
+    //The complex shit probably, idk i havent written it yet
+
         
-                const { position, id, color } = this.boardsPieces[pieceId];
-                const newPieceClass = pieceMap[type];
-                this.boardsPieces[id] = new newPieceClass(type, position, id, color);
-                //refresh tile
-                const tileImage = document.querySelector(`.js-board-square-${position}`).querySelector('img');
-                tileImage.src = `
-                ./assets/${this.boardsPieces[id].type}-${color}.png`
-                promotionUi.style.display = 'none';
-            })
-        })  
+    #checkForCheck(){ //low level base function
+        
     }
+
+    
 }
 
 new Board();
+
+//only need one across all boardstates 
