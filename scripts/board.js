@@ -81,7 +81,7 @@ export class Board{
             data-index=${index}>
             ${tile?`<img src='./assets/${tile.type}-${tile.color}.png'
             class="piece" 
-            data-id=${tile.id} data-color=${tile.color}`:
+            data-id=${tile.id} data-color=${tile.color}>`:
             ''}
             </button>`;
 
@@ -210,8 +210,11 @@ export class Board{
         //OBJECT UPDATE
         piece.position= newPosition;
         //swap turns
-        this.#endOfTurn();
-        this.#startOfOpponentTurn()
+        if (!testBoard){
+            this.#endOfTurn();
+            this.#startOfOpponentTurn()
+        }
+        
 
     }
 
