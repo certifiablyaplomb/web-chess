@@ -13,13 +13,14 @@ class Piece{ //super
     }
     
     // || PUBLIC || \\
-    assessMoves(boardState){
+    assessMoves(boardState, checkValidation=false){ //checkValidation is a strange parameter, SPECIAL CASE USE (PIECE SPECIFIC)
         //passing an int by value in any kind of training sense would get expensive
         this.boardState= boardState;
 
-        const allMoves = this._findAllMoves();
-        //delete afterwards cause if running multiple boardstates in testing storing so many objects with those extra two paramaters is unessecary 
+        const allMoves = checkValidation ? this._findAllMoves(checkValidation) : this._findAllMoves();
+        //delete afterwards cause why not 
         delete this.boardState;
+        
         return allMoves;
         ////////////////////////////////////////////////////////////
     }
@@ -92,20 +93,36 @@ class Piece{ //super
         return availableMoves;
     }
     //finds max distance a piece can travel given a vector of available moves
-    _findMax(movesArray, distance=0, forwardPawn=false){
+    _findMax(movesArray, distance=0, forwardPawn=false, forCheckValidation=false){
         if (distance){
             movesArray = movesArray.splice(0, distance);
         }
         let max;
-        for (let i = 0; i < movesArray.length; i++){
-            if (this.boardState[movesArray[i]]){
-                max = ((this.color === this.boardState[movesArray[i]].color) || forwardPawn)? 
-                    movesArray.splice(0, i) : movesArray.splice(0, i+1);
-                break;
+        
+        if(!forCheckValidation){
+            for (let i = 0; i < movesArray.length; i++){
+                if (this.boardState[movesArray[i]]){
+                        max = ((this.color === this.boardState[movesArray[i]].color) || forwardPawn)? 
+                            movesArray.splice(0, i) : movesArray.splice(0, i+1);
+                        break;
+                }
+            }
+            
+        }
+        else{ //returns first thing in collision with
+            for (let i = 0; i < movesArray.length; i++){
+                if (this.boardState[movesArray[i]]){
+                    max = this.color != this.boardState[movesArray[i]].color? [movesArray[i]] : [];
+                    break;
+                }
+                else{
+                    max = []
+                }
             }
         }
         return max? max : movesArray;
     }
+
 
 };
 
@@ -173,10 +190,10 @@ class Rook extends Piece{
 
     }
 }
-class Knight extends Piece{
+export class Knight extends Piece{
      // + -
     
-    _findAllMoves(){
+    _findAllMoves(){ 
         let allAvailableMoves =[];
         const moveMap = [
             -6, -10, -15, -17,
@@ -245,21 +262,22 @@ class King extends Piece{
         return allAvailableMoves;
     }
 }
-class Queen extends Piece{
-    _findAllMoves(){
+export class Queen extends Piece{
+    _findAllMoves(checkValidation=false){
         let allAvailableMoves = [];
-        allAvailableMoves.push(...(this._findMax(this._findLimitHV('u'))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitHV('d'))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitHV('l'))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitHV('r'))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('u'), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('d'), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('l'), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitHV('r'), 0, false, checkValidation)));
 
-        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ur`))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ul`))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dr`))));
-        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dl`))));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ur`), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`ul`), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dr`), 0, false, checkValidation)));
+        allAvailableMoves.push(...(this._findMax(this._findLimitD(`dl`), 0, false, checkValidation)));
 
         return allAvailableMoves;
     }
+
 }
 
 // PIECE DATA \\
@@ -478,8 +496,9 @@ export const pieceObjects = pieceData.map((piece)=>{
     return new pieceClass(type, position, id, color);
 })
 
-export function makePieces(){
-    const pieceObjects = pieceData.map((piece)=>{
+export function makePieces(listToClone=null){
+    const objectToCopy = listToClone? listToClone : pieceData;
+    const pieceObjects = objectToCopy.map((piece)=>{
     const { type, position, id, color } = piece;
     const pieceClass = pieceMap[type];
     return new pieceClass(type, position, id, color);

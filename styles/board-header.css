@@ -1,0 +1,23 @@
+.board-header{
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    background-color: antiquewhite;
+    align-self: stretch;
+    border:3px solid black;
+    padding: 15px 25px;
+    border-radius: 8px;
+
+    position: relative;
+    top:-40px;
+}
+
+.toggle-moves-container{
+    display: flex;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+}
+.toggle-moves-checkbox{
+    cursor: pointer;
+}

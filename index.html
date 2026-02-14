@@ -4,6 +4,7 @@
         <title>Chess Engine</title>
         <link rel="icon" href="./assets/king-w.png">
         <link rel="stylesheet" href="./styles/general.css">
+         <link rel="stylesheet" href="./styles/board-header.css">
         <link rel="stylesheet" href="./styles/board.css">
         <link rel="stylesheet" href="./styles/app.css">
         <link rel="stylesheet" href="./styles/promotion-ui.css">
@@ -11,6 +12,13 @@
     </head>
     <body>
         <div class="js-app app">
+            <div class="board-header">
+                <div class="toggle-moves-container">
+                    <span>Toggle Show Moves</span>
+                    <input type="checkbox" class="js-toggle-moves toggle-moves-checkbox">
+                </div>
+                
+            </div>
             <div class="js-board board"></div>
             <div class="js-promotion-ui promotion-ui">
                 <button class="js-promotion-button option-button" data-type="queen">Queen</button>
