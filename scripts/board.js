@@ -57,7 +57,7 @@ export class Board{
         }
     }
     
-
+    
     //one time use //
    renderBoardHtml(){
         let boardHtml = '';
@@ -85,7 +85,7 @@ export class Board{
         return boardHtml;    
         //add fucntionality to squares
     };
-
+    
     #toggleShowMoves(state){ //true show, false hide
         if (state){
             this.toggleShowMoves = true;

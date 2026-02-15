@@ -57,7 +57,7 @@ function renderLocalGames(){
                                 </div>
                                 <p></p>
                             </div>
-                            <div class="js-game-preview game-preview data-board-id="${key}">
+                            <div class="js-game-preview game-preview" data-board-id="${key}">
                                 <img src="./assets/king-${board.turn}.png">
                             </div>
                 </div>
