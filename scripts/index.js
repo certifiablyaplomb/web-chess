@@ -57,7 +57,7 @@ function renderLocalGames(){
                                 </div>
                                 <p></p>
                             </div>
-                            <div class="js-game-preview game-preview data-board-id="${key}"">
+                            <div class="js-game-preview game-preview data-board-id="${key}">
                                 <img src="./assets/king-${board.turn}.png">
                             </div>
                 </div>
@@ -80,15 +80,16 @@ function renderGameMenuButtons(){
     document.querySelectorAll('.js-game-preview').forEach((game)=>{
         game.addEventListener('click', ()=>{
         const gameKey = game.dataset.boardId;
+        console.log(gameKey)
         renderGameBoard(gameKey);
         
     })})
    //delete a game
     document.querySelectorAll('.js-delete-game').forEach((deleteButton)=>{
         deleteButton.addEventListener('click', ()=>{
+            
             const gameKey = deleteButton.dataset.boardId;
             localStorage.removeItem(gameKey);
-            renderLocalGames();
         })
     })
 }
