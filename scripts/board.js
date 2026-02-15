@@ -33,7 +33,7 @@ export class Board{
     wInCheck = false;
     
     constructor(boardCopy=false, boardsPieces=null, turn='w'){
-        this.boardsPieces = boardsPieces? makePieces(boardsPieces) : makePieces(); 
+        this.boardsPieces = (boardsPieces)? makePieces(boardsPieces) : makePieces(); 
         if (boardCopy && !boardsPieces){
             throw new Error("Fatal Error: missing necessary constructor parameter(s)")
         }
@@ -49,27 +49,15 @@ export class Board{
         
         //only render html for a fresh board-- otherwise odds are it's BTS simulated moves
         if(!boardCopy){
-
             this.mainDisplay = true;
-            document.querySelector('.js-board').innerHTML = this.#renderBoardHtml();
+            document.querySelector('.js-board').innerHTML = this.renderBoardHtml();
             this.#addAllButtonFunctionality();
         }
-
     }
-    #toggleShowMoves(state){ //true show, false hide
-        if (state){
-            this.toggleShowMoves = true;
-            this.#colorMoves(this.availableMoves, 'rgba(230, 230, 230, 0.8)')
-        }
-        else{
-            this.toggleShowMoves = false;
-            this.#colorMoves(this.availableMoves, '')
-        }
-    }
+    
 
     //one time use //
-   #renderBoardHtml(){
-        
+   renderBoardHtml(){
         let boardHtml = '';
         let parser = 0;
         let count = 0;
@@ -95,6 +83,18 @@ export class Board{
         return boardHtml;    
         //add fucntionality to squares
     };
+
+    #toggleShowMoves(state){ //true show, false hide
+        if (state){
+            this.toggleShowMoves = true;
+            this.#colorMoves(this.availableMoves, 'rgba(230, 230, 230, 0.8)')
+        }
+        else{
+            this.toggleShowMoves = false;
+            this.#colorMoves(this.availableMoves, '')
+        }
+    }
+
     #addAllButtonFunctionality(){
         //board
         document.querySelectorAll('.js-board-square').forEach((button)=>{
@@ -270,7 +270,7 @@ export class Board{
     //takes what color it's checking check for, the position of the piece moving, and the position that piece is moving too
 
     #checkForCheck(color, cPos, nPos){ //returns true if in check
-        let testBoard = new Board(true, this.boardsPieces) //turn doesn't matter for checking check
+        let testBoard = new Board(true, false, this.boardsPieces) //turn doesn't matter for checking check
 
         testBoard.#movePiece(testBoard.boardState[cPos], nPos, true);
         const kingToTest = color === 'w' ? testBoard.wKing : testBoard.bKing;
@@ -352,7 +352,7 @@ export class Board{
 
 
 
-const gameBoard = new Board();
+
 
 
 
