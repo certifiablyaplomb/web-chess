@@ -17,9 +17,11 @@ function columnChange(position, opponentPosition){
 
 export class Board{
     //variables assigned to null pre-construct are objects
+    boardId;
+
     mainDisplay=false;
     toggleShowMoves=true;
-
+    
     boardsPieces=null;
     boardState = [];
     turn = '';
@@ -103,9 +105,10 @@ export class Board{
             })
         })
         //add functionality to toggleShowMoves button
-        const toggleShowMoves = document.querySelector('.js-toggle-moves');
-            toggleShowMoves.addEventListener('change', ()=>{
-            this.#toggleShowMoves(!(toggleShowMoves.checked))
+        const toggleShowMovesCheck = document.querySelector('.js-toggle-moves');
+        if (this.toggleShowMoves) toggleShowMovesCheck.checked = true;
+        toggleShowMovesCheck.addEventListener('change', ()=>{
+            this.#toggleShowMoves(!(toggleShowMovesCheck.checked))
         });
         //promotion button options
         document.querySelectorAll('.js-promotion-button').forEach((button)=>{
@@ -240,8 +243,10 @@ export class Board{
     }
 
     #startOfOpponentTurn(){
+        let gameOver = false;
         if (this.turn === 'w' && this.wInCheck){
             if (this.#checkForCheckMate('w')){
+                gameOver = true;
                 console.log('White Has Lost')
                 }
             else{
@@ -250,12 +255,23 @@ export class Board{
             }   
         else if (this.turn === 'b' && this.bInCheck){
             if (this.#checkForCheckMate('b')){
+                gameOver = true;
                 console.log('Black Has Lost')
                 }
             else{
                 console.log('Black Is In Check')
                 }
         }
+        
+        localStorage.setItem(this.boardId, JSON.stringify(
+            {
+            boardPieces: this.boardsPieces,
+            toggleShowMoves : this.toggleShowMoves,
+            turn: this.turn,
+            gameOver: gameOver
+            }
+        
+        ))
     }
 
     #colorMoves(moves, color, testBoard=false){
@@ -270,7 +286,7 @@ export class Board{
     //takes what color it's checking check for, the position of the piece moving, and the position that piece is moving too
 
     #checkForCheck(color, cPos, nPos){ //returns true if in check
-        let testBoard = new Board(true, false, this.boardsPieces) //turn doesn't matter for checking check
+        let testBoard = new Board(true, this.boardsPieces) //turn doesn't matter for checking check
 
         testBoard.#movePiece(testBoard.boardState[cPos], nPos, true);
         const kingToTest = color === 'w' ? testBoard.wKing : testBoard.bKing;

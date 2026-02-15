@@ -3,6 +3,9 @@ p{
     font-weight: 500;
     
 }
+.game-menu-container{
+    justify-content: start;
+}
 .game-list{
     width:100%;
     justify-content: start;
@@ -19,7 +22,7 @@ p{
     width:100%;
     margin-top:8px;
 }
-.game-option:hover{
+.game-preview:hover{
     cursor: pointer;
     background-color: blanchedalmond;
 }
@@ -45,6 +48,10 @@ p{
 }
 .game-info{
     font-size: 12px;
+}
+.delete-game:hover{
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .header{
