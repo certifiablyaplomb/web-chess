@@ -125,7 +125,7 @@ function renderGameBoard(gameKey){
             const currentBoard = new Board(false, gameData.boardPieces, gameData.turn); //false, pieces, turn
             currentBoard.boardId = gameKey;
             currentBoard.toggleShowMoves = gameData.toggleShowMoves;// set old preference
-        }
+        }    
         
 
         //render back button

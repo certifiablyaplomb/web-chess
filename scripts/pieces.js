@@ -16,7 +16,6 @@ class Piece{ //super
     assessMoves(boardState, checkValidation=false){ //checkValidation is a strange parameter, SPECIAL CASE USE (PIECE SPECIFIC)
         //passing an int by value in any kind of training sense would get expensive
         this.boardState= boardState;
-
         const allMoves = checkValidation ? this._findAllMoves(checkValidation) : this._findAllMoves();
         //delete afterwards cause why not 
         delete this.boardState;
@@ -301,13 +300,13 @@ const pieceData = [
         color: 'b'
     },
     {
-        type: 'king',
+        type: 'queen',
         position: 3,
         id:3,
         color: 'b'
     },
     {
-        type: 'queen',
+        type: 'king',
         position: 4,
         id:4,
         color: 'b'
