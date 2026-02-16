@@ -38,7 +38,7 @@ class Piece{ //super
             if (availableCount > 0){
                 const normalized = direction==='r'? 1 : -1;
                 for (let i=1; i <= availableCount; i++){
-                    availableMoves.push(this.position + (i * normalized))
+                    availableMoves.push(this.position + (i * normalized));
                 }
             }
         }
@@ -48,7 +48,7 @@ class Piece{ //super
             if (availableCount > 0){
                 const normalized = direction==='u'? -1 : 1;
                 for (let i=1; i <= availableCount; i++){
-                    availableMoves.push(this.position + ((i * normalized) * 8))
+                    availableMoves.push(this.position + ((i * normalized) * 8));
                 }
             }
         }
